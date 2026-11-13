@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BloodCare | Blood Awareness Dashboard</title>
+<style>
+:root{
+  --red:#e63946;--dark:#14213d;--muted:#718096;
+  --bg:#f4f7fb;--white:#fff;--line:#e8edf4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--dark)}
+button,input{font:inherit}
+button{cursor:pointer}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#111d35;color:white;padding:26px 18px;position:fixed;inset:0 auto 0 0;z-index:10;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:12px;padding:4px 10px 30px}
+.logo{width:43px;height:43px;border-radius:14px;background:var(--red);display:grid;place-items:center;font-size:23px}
+.brand h2{font-size:21px;letter-spacing:.3px}
+.brand small{color:#aab6cb;font-size:11px}
+.nav-title{font-size:10px;letter-spacing:1.6px;color:#8290a8;padding:12px 12px}
+.nav button{width:100%;border:0;background:transparent;color:#b9c5d8;padding:13px 14px;border-radius:11px;text-align:left;margin:3px 0;display:flex;gap:13px;align-items:center;font-size:14px;transition:.2s}
+.nav button:hover,.nav button.active{background:#263653;color:white}
+.nav button.active{border-left:3px solid var(--red)}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.sidebar-bottom{margin-top:auto;background:#1c2b48;border-radius:14px;padding:16px;font-size:12px;color:#cbd5e1;line-height:1.6}
+.sidebar-bottom b{display:block;color:white;margin-bottom:5px}
+.main{margin-left:245px;width:calc(100% - 245px);padding:26px 34px 35px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}
+.topbar h1{font-size:25px}
+.topbar p{color:var(--muted);font-size:13px;margin-top:5px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.search{background:white;border:1px solid var(--line);border-radius:11px;padding:11px 14px;width:220px;outline:none}
+.search:focus{border-color:var(--red)}
+.profile{width:40px;height:40px;border-radius:50%;background:#ffe2e4;color:var(--red);display:grid;place-items:center;font-weight:800}
+.page{display:none;animation:fade .35s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{background:linear-gradient(115deg,#182744,#263c61);border-radius:22px;padding:32px;color:white;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden;position:relative}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border:35px solid #ffffff0d;border-radius:50%;right:8%;top:-100px}
+.hero-copy{position:relative;z-index:1;max-width:600px}
+.eyebrow{color:#ffb8bd;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.hero h2{font-size:clamp(25px,3vw,38px);line-height:1.18;margin:13px 0}
+.hero p{color:#d5deec;line-height:1.7;font-size:14px;max-width:530px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{border:0;border-radius:10px;padding:12px 17px;font-weight:700;font-size:13px}
+.btn-red{background:var(--red);color:white}
+.btn-light{background:white;color:var(--dark)}
+.hero-art{font-size:105px;z-index:1;filter:drop-shadow(0 12px 18px #0003);padding:10px 25px}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:27px 0 15px;gap:12px}
+.section-head h2{font-size:19px}
+.section-head p{font-size:12px;color:var(--muted);margin-top:5px}
+.text-link{color:var(--red);font-size:12px;font-weight:800;border:0;background:none}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:20px}
+.stat,.panel,.group-card,.component-card,.info-card{background:white;border:1px solid var(--line);border-radius:16px}
+.stat{padding:19px;display:flex;align-items:center;gap:13px}
+.stat-icon{width:43px;height:43px;border-radius:13px;background:#fff0f1;display:grid;place-items:center;font-size:21px}
+.stat strong{font-size:22px;display:block}
+.stat small{font-size:11px;color:var(--muted)}
+.group-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.group-card{padding:17px;transition:.2s;cursor:pointer}
+.group-card:hover{transform:translateY(-4px);box-shadow:0 12px 25px #15233b12;border-color:#ffc5c9}
+.blood-symbol{width:40px;height:40px;border-radius:13px;background:#fff0f1;color:var(--red);display:grid;place-items:center;font-size:21px;margin-bottom:12px}
+.group-card h3{font-size:23px}
+.group-card p{font-size:11px;color:var(--muted);margin-top:5px}
+.group-card span{display:inline-block;margin-top:12px;color:var(--red);font-size:11px;font-weight:800}
+.two-col{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:18px}
+.panel{padding:21px}
+.panel h3{font-size:16px}
+.panel-sub{font-size:12px;color:var(--muted);margin-top:5px}
+.level-row{margin-top:20px}
+.level-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
+.level-label b{font-size:12px}
+.track{height:10px;border-radius:20px;background:#edf1f6;overflow:hidden}
+.fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#ff9a9e,var(--red))}
+.note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:17px;padding:12px;background:#f7f9fc;border-radius:10px}
+.donut-wrap{display:flex;align-items:center;justify-content:center;gap:22px;padding:22px 0 8px}
+.donut{width:145px;height:145px;border-radius:50%;background:conic-gradient(#e63946 0 45%,#ff9d9d 45% 70%,#f8c6c9 70% 88%,#dbe3ef 88% 100%);display:grid;place-items:center}
+.donut:after{content:"Blood";width:88px;height:88px;border-radius:50%;background:white;display:grid;place-items:center;font-weight:800}
+.legend{display:grid;gap:12px;font-size:12px;color:#526078}
+.legend span{display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block;background:var(--red)}
+.component-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.component-card{padding:20px}
+.component-card .emoji{font-size:30px}
+.component-card h3{margin:12px 0 7px;font-size:16px}
+.component-card p{font-size:12px;color:var(--muted);line-height:1.6}
+.tag{display:inline-block;margin-top:13px;padding:6px 9px;border-radius:20px;background:#fff0f1;color:var(--red);font-size:10px;font-weight:800}
+.donation{background:linear-gradient(120deg,#fff0f1,#fff);border:1px solid #ffdadd;border-radius:18px;padding:27px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.donation h2{font-size:23px;margin:8px 0}
+.donation p{font-size:13px;color:#65738a;line-height:1.7;max-width:570px}
+.donation-art{font-size:70px}
+.tips{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:17px}
+.info-card{padding:18px}
+.info-card b{display:block;margin:8px 0;font-size:14px}
+.info-card p{font-size:12px;line-height:1.6;color:var(--muted)}
+.about-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.about-grid .panel p{font-size:13px;line-height:1.8;color:var(--muted);margin-top:10px}
+.footer{border-top:1px solid var(--line);margin-top:30px;padding:20px 0 0;display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:11px}
+.modal{position:fixed;inset:0;background:#0d172bcc;display:none;place-items:center;padding:20px;z-index:30}
+.modal.show{display:grid}
+.modal-box{background:white;border-radius:18px;padding:25px;max-width:390px;width:100%;position:relative}
+.modal-close{position:absolute;right:15px;top:13px;border:0;background:#f1f3f7;border-radius:50%;width:30px;height:30px}
+.modal-box h2{font-size:30px;color:var(--red);margin-bottom:8px}
+.modal-box p{font-size:13px;color:var(--muted);line-height:1.7;margin:10px 0}
+.mobile-menu{display:none;border:0;background:white;padding:9px 12px;border-radius:9px}
+.empty{display:none;text-align:center;color:var(--muted);padding:20px;font-size:13px}
+@media(max-width:1050px){.stats,.group-grid{grid-template-columns:repeat(2,1fr)}.component-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){
+ .sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}
+ .main{margin-left:0;width:100%;padding:18px}
+ .mobile-menu{display:block}.topbar{align-items:flex-start}.topbar h1{font-size:20px}
+ .search{width:145px}.hero{padding:24px}.hero-art{font-size:65px;padding:0}
+ .two-col{grid-template-columns:1fr}.tips{grid-template-columns:1fr}
+ .footer{flex-direction:column}
+}
+@media(max-width:480px){
+ .topbar{flex-wrap:wrap}.top-actions{width:100%}.search{flex:1}
+ .hero-art{display:none}.stats,.group-grid,.component-grid,.about-grid{grid-template-columns:1fr 1fr}
+ .stat{padding:13px}.stat strong{font-size:19px}
+ .donation-art{font-size:45px}.donation{padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="logo">🩸</div><div><h2>BloodCare</h2><small>HEALTH AWARENESS</small></div></div>
+  <div class="nav-title">MAIN MENU</div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
+    <button data-page="groups"><span class="nav-icon">🩸</span>Blood Groups</button>
+    <button data-page="hemoglobin"><span class="nav-icon">📊</span>Hemoglobin Levels</button>
+    <button data-page="components"><span class="nav-icon">🔬</span>Blood Components</button>
+    <button data-page="donation"><span class="nav-icon">❤️</span>Blood Donation</button>
+    <button data-page="about"><span class="nav-icon">ⓘ</span>About Project</button>
+  </nav>
+  <div class="sidebar-bottom"><b>🩺 Health awareness matters</b>Learn about blood, understand your health, and help spread awareness.</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="mobile-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div><h1 id="pageTitle">Dashboard Overview</h1><p>Explore blood health and awareness information</p></div>
+  </div>
+  <div class="top-actions">
+    <input class="search" id="search" placeholder="⌕  Search blood groups..." aria-label="Search blood groups">
+    <div class="profile">BC</div>
+  </div>
+</header>
+
+<section class="page active" id="dashboard">
+  <div class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">YOUR GUIDE TO BLOOD HEALTH</div>
+      <h2>Every Drop Matters.<br>Every Life Counts.</h2>
+      <p>Discover blood groups, understand hemoglobin levels, explore blood components and learn how blood donation can save lives.</p>
+      <div class="hero-actions">
+        <button class="btn btn-red" onclick="showPage('groups')">Explore Blood Groups →</button>
+        <button class="btn btn-light" onclick="showPage('donation')">Donation Awareness</button>
+      </div>
+    </div>
+    <div class="hero-art">🩸</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-icon">🩸</div><div><strong>8</strong><small>Blood Groups</small></div></div>
+    <div class="stat"><div class="stat-icon">🔬</div><div><strong>4</strong><small>Blood Components</small></div></div>
+    <div class="stat"><div class="stat-icon">g/dL</div><div><strong>g/dL</strong><small>Hemoglobin Unit</small></div></div>
+    <div class="stat"><div class="stat-icon">❤️</div><div><strong>1 Goal</strong><small>Save Lives Through Awareness</small></div></div>
+  </div>
+
+  <div class="section-head"><div><h2>Explore Blood Groups</h2><p>There are eight commonly recognized ABO and Rh blood types.</p></div><button class="text-link" onclick="showPage('groups')">View all →</button></div>
+  <div class="group-grid">
+    <div class="group-card" data-group="A+"><div class="blood-symbol">🩸</div><h3>A+</h3><p>A positive</p><span>View details →</span></div>
+    <div class="group-card" data-group="A-"><div class="blood-symbol">🩸</div><h3>A−</h3><p>A negative</p><span>View details →</span></div>
+    <div class="group-card" data-group="B+"><div class="blood-symbol">🩸</div><h3>B+</h3><p>B positive</p><span>View details →</span></div>
+    <div class="group-card" data-group="B-"><div class="blood-symbol">🩸</div><h3>B−</h3><p>B negative</p><span>View details →</span></div>
+  </div>
+  <div class="two-col">
+    <div class="panel"><h3>Hemoglobin Reference Levels</h3><p class="panel-sub">Typical adult reference ranges</p>
+      <div class="level-row"><div class="level-label"><span>Adult men</span><b>13.5–17.5 g/dL</b></div><div class="track"><div class="fill" style="width:88%"></div></div></div>
+      <div class="level-row"><div class="level-label"><span>Adult women (not pregnant)</span><b>12.0–15.5 g/dL</b></div><div class="track"><div class="fill" style="width:76%"></div></div></div>
+      <div class="note">These are general reference ranges, not personal targets. Actual ranges vary by laboratory, age, pregnancy status and other factors.</div>
+    </div>
+    <div class="panel"><h3>What is in Blood?</h3><p class="panel-sub">The four major components</p>
+      <div class="donut-wrap"><div class="donut"></div><div class="legend"><span><i class="dot"></i> Plasma</span><span><i class="dot" style="background:#ff9d9d"></i> Red cells</span><span><i class="dot" style="background:#f8c6c9"></i> White cells & platelets</span><span><i class="dot" style="background:#dbe3ef"></i> Other</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="groups">
+  <div class="section-head"><div><h2>All Blood Groups</h2><p>Select any blood group to learn more.</p></div></div>
+  <div class="group-grid">
+    <div class="group-card" data-group="A+"><div class="blood-symbol">🩸</div><h3>A+</h3><p>A positive</p><span>View details →</span></div>
+    <div class="group-card" data-group="A-"><div class="blood-symbol">🩸</div><h3>A−</h3><p>A negative</p><span>View details →</span></div>
+    <div class="group-card" data-group="B+"><div class="blood-symbol">🩸</div><h3>B+</h3><p>B positive</p><span>View details →</span></div>
+    <div class="group-card" data-group="B-"><div class="blood-symbol">🩸</div><h3>B−</h3><p>B negative</p><span>View details →</span></div>
+    <div class="group-card" data-group="AB+"><div class="blood-symbol">🩸</div><h3>AB+</h3><p>AB positive</p><span>View details →</span></div>
+    <div class="group-card" data-group="AB-"><div class="blood-symbol">🩸</div><h3>AB−</h3><p>AB negative</p><span>View details →</span></div>
+    <div class="group-card" data-group="O+"><div class="blood-symbol">🩸</div><h3>O+</h3><p>O positive</p><span>View details →</span></div>
+    <div class="group-card" data-group="O-"><div class="blood-symbol">🩸</div><h3>O−</h3><p>O negative</p><span>View details →</span></div>
+  </div>
+  <p class="empty" id="empty">No matching blood groups found.</p>
+  <div class="note">Important: Blood type alone does not determine transfusion safety. Hospitals perform compatibility testing and crossmatching before transfusion.</div>
+</section>
+
+<section class="page" id="hemoglobin">
+  <div class="section-head"><div><h2>Hemoglobin Levels</h2><p>Understand hemoglobin and its role in the human body.</p></div></div>
+  <div class="panel">
+    <h3>What is Hemoglobin?</h3>
+    <p class="panel-sub" style="line-height:1.8">Hemoglobin is an iron-containing protein in red blood cells. It carries oxygen from the lungs to the body's tissues. It is commonly measured in grams per deciliter (g/dL).</p>
+    <div class="two-col">
+      <div>
+        <div class="level-row"><div class="level-label"><span>Adult men</span><b>13.5–17.5 g/dL</b></div><div class="track"><div class="fill" style="width:88%"></div></div></div>
+        <div class="level-row"><div class="level-label"><span>Adult women (not pregnant)</span><b>12.0–15.5 g/dL</b></div><div class="track"><div class="fill" style="width:76%"></div></div></div>
+        <div class="level-row"><div class="level-label"><span>Pregnancy</span><b>Varies by trimester</b></div><div class="track"><div class="fill" style="width:65%"></div></div></div>
+      </div>
+      <div class="note"><b>Why is it important?</b><br>Hemoglobin helps deliver oxygen throughout the body. Low or high results should be interpreted by a qualified healthcare professional using the lab's reference range and the person's circumstances.</div>
+    </div>
+  </div>
+  <div class="tips">
+    <div class="info-card"><div>🫁</div><b>Oxygen transport</b><p>Hemoglobin carries oxygen from the lungs to body tissues.</p></div>
+    <div class="info-card"><div>🩸</div><b>Red blood cells</b><p>Hemoglobin gives red blood cells much of their red colour.</p></div>
+    <div class="info-card"><div>🧪</div><b>Blood test</b><p>A complete blood count (CBC) commonly includes a hemoglobin measurement.</p></div>
+  </div>
+  <div class="note">Reference values are approximate educational examples. Ranges differ between laboratories and may vary with age, pregnancy and other factors. This website cannot diagnose anemia.</div>
+</section>
+
+<section class="page" id="components">
+  <div class="section-head"><div><h2>Blood Components</h2><p>Blood has four major components, each with an important function.</p></div></div>
+  <div class="component-grid">
+    <div class="component-card"><div class="emoji">🔴</div><h3>Red Blood Cells</h3><p>Carry oxygen from the lungs to the rest of the body with the help of hemoglobin.</p><span class="tag">OXYGEN TRANSPORT</span></div>
+    <div class="component-card"><div class="emoji">⚪</div><h3>White Blood Cells</h3><p>Help the immune system defend the body against infections and harmful germs.</p><span class="tag">BODY DEFENCE</span></div>
+    <div class="component-card"><div class="emoji">🟣</div><h3>Platelets</h3><p>Help blood clot and support the body in stopping bleeding after an injury.</p><span class="tag">CLOTTING</span></div>
+    <div class="component-card"><div class="emoji">🟡</div><h3>Plasma</h3><p>The liquid part of blood. It transports nutrients, hormones, proteins and waste products.</p><span class="tag">TRANSPORT</span></div>
+  </div>
+  <div class="panel" style="margin-top:17px"><h3>Why are blood components important?</h3><p class="panel-sub" style="line-height:1.8">Each component performs a different job. Together, they help the body transport oxygen, fight infection, control bleeding and maintain normal body functions. In medical care, some patients may receive specific blood components rather than whole blood.</p></div>
+</section>
+
+<section class="page" id="donation">
+  <div class="donation">
+    <div><div class="eyebrow">GIVE THE GIFT OF LIFE</div><h2>Donate Blood. Help Save Lives.</h2><p>Blood donation supports patients who need blood during surgery, accidents, childbirth complications and certain medical treatments. Eligible donors can make a meaningful difference.</p><div class="hero-actions"><button class="btn btn-red" onclick="document.getElementById('donateInfo').scrollIntoView({behavior:'smooth'})">Learn Before Donating ↓</button></div></div>
+    <div class="donation-art">❤️🩸</div>
+  </div>
+  <div class="section-head" id="donateInfo"><div><h2>Before You Donate</h2><p>General awareness tips for potential blood donors.</p></div></div>
+  <div class="tips">
+    <div class="info-card"><div>🥗</div><b>Eat well</b><p>Have a healthy meal and follow the donation centre's instructions.</p></div>
+    <div class="info-card"><div>💧</div><b>Stay hydrated</b><p>Drink enough water before and after donation, as advised.</p></div>
+    <div class="info-card"><div>🩺</div><b>Health screening</b><p>Donation staff will check your eligibility and health before donation.</p></div>
+    <div class="info-card"><div>🪪</div><b>Bring identification</b><p>Carry the identification documents requested by the donation centre.</p></div>
+    <div class="info-card"><div>🛌</div><b>Take rest</b><p>Follow post-donation advice and avoid strenuous activity for the recommended period.</p></div>
+    <div class="info-card"><div>🏥</div><b>Choose a licensed centre</b><p>Donate only at an authorized blood centre with trained staff.</p></div>
+  </div>
+  <div class="note">Donation eligibility, age, weight, hemoglobin requirements and donation intervals depend on local regulations and individual health. Always follow the screening team's advice. Never rely on this educational website to decide eligibility.</div>
+</section>
+
+<section class="page" id="about">
+  <div class="section-head"><div><h2>About BloodCare</h2><p>A student mini project focused on health awareness.</p></div></div>
+  <div class="hero" style="margin-bottom:18px"><div class="hero-copy"><div class="eyebrow">OUR PROJECT</div><h2>Knowledge Can Save Lives.</h2><p>BloodCare is an educational website designed to make basic information about blood groups, hemoglobin, blood components and donation easier to understand.</p></div><div class="hero-art">🩺</div></div>
+  <div class="about-grid">
+    <div class="panel"><h3>🎯 Project Objective</h3><p>To spread awareness about blood groups, hemoglobin levels, the functions of blood components and the importance of safe blood donation.</p></div>
+    <div class="panel"><h3>📚 What We Cover</h3><p>ABO and Rh blood types, general hemoglobin reference ranges, the four major blood components and basic blood donation awareness.</p></div>
+    <div class="panel"><h3>💡 Project Purpose</h3><p>To present health-related educational information in a simple, organized and accessible website for students and the public.</p></div>
+    <div class="panel"><h3>⚕️ Medical Disclaimer</h3><p>This is an educational student project, not a medical service. It does not provide diagnosis, treatment, donor matching or live blood-bank availability.</p></div>
+  </div>
+</section>
+
+<footer class="footer"><span>© 2026 BloodCare | Student Mini Project</span><span>Learn • Understand • Spread Awareness ❤️</span></footer>
+</main>
+</div>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+ <div class="modal-box"><button class="modal-close" onclick="closeModal()">✕</button><h2 id="modalTitle">A+</h2><b id="modalName">A Positive</b><p id="modalText"></p><div class="note">For real transfusions, hospitals must perform proper blood grouping and compatibility testing. This information is for education only.</div></div>
+</div>
+
+<script>
+const groupInfo={
+ "A+":["A Positive","Has A antigen and Rh factor on red blood cells. It is one of the common blood types."],
+ "A-":["A Negative","Has A antigen but does not have the Rh factor on red blood cells."],
+ "B+":["B Positive","Has B antigen and Rh factor on red blood cells."],
+ "B-":["B Negative","Has B antigen but does not have the Rh factor on red blood cells."],
+ "AB+":["AB Positive","Has both A and B antigens and the Rh factor on red blood cells."],
+ "AB-":["AB Negative","Has A and B antigens but does not have the Rh factor on red blood cells."],
+ "O+":["O Positive","Has the Rh factor but does not have A or B antigens on red blood cells."],
+ "O-":["O Negative","Does not have A or B antigens or the Rh factor on red blood cells."]
+};
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ const titles={dashboard:"Dashboard Overview",groups:"Blood Groups",hemoglobin:"Hemoglobin Levels",components:"Blood Components",donation:"Blood Donation Awareness",about:"About BloodCare"};
+ document.getElementById('pageTitle').textContent=titles[id];
+ document.getElementById('sidebar').classList.remove('open');
+ document.getElementById('search').value="";
+ filterGroups("");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+function openGroup(group){
+ document.getElementById('modalTitle').textContent=group.replace("-","−");
+ document.getElementById('modalName').textContent=groupInfo[group][0];
+ document.getElementById('modalText').textContent=groupInfo[group][1];
+ document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+document.querySelectorAll('.group-card').forEach(card=>card.addEventListener('click',()=>openGroup(card.dataset.group)));
+document.addEventListener('keydown',e=>{if(e.key==="Escape")closeModal()});
+function filterGroups(value){
+ const q=value.toLowerCase().replace("+","plus").replace("-","negative");
+ let count=0;
+ document.querySelectorAll('.group-card').forEach(card=>{
+  const group=card.dataset.group;
+  const name=groupInfo[group][0].toLowerCase();
+  const match=(group.toLowerCase()+" "+group.replace("+","plus").replace("-","negative")+" "+name).includes(q);
+  card.style.display=match?"":"none";
+  if(match)count++;
+ });
+ const empty=document.getElementById('empty');
+ if(empty)empty.style.display=count===0?"block":"none";
+}
+document.getElementById('search').addEventListener('input',e=>{
+ const query=e.target.value.trim();
+ if(query)showPage("groups");
+ filterGroups(query);
+});
+</script>
+</body>
+</html>
